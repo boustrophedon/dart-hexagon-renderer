@@ -1,0 +1,10 @@
+name: hexagon_renderer
+version: "0.0.2"
+description: hexagon terrain renderer in dart
+author: Harry Stern <harry.stern@rutgers.edu>
+homepage: 
+environment:
+  sdk: ">=1.6.0"
+dependencies:
+  browser: any
+  vector_math: any
