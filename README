@@ -1,0 +1,13 @@
+This is going to be a testbed for various rendering techniques. The first thing I did was write code to draw a hexagon(al prism) and camera code for fps-style movement. Next I'll probably try to implement some shading because currently the colors are set manually.
+
+"feature list"
+- renders hexagons via an add_hexagon method
+- fps-style camera
+
+
+todo:
+- more kinds of cameras, though it's not that hard to do
+- shading
+	lots of different things to try out here
+- I'm explicitly not trying to make a game, but maybe add something like billboarded sprites
+- hidden surface removal (don't draw hexagons that can't possibly be visible) and associated data structures
