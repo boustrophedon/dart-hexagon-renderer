@@ -97,6 +97,10 @@ class HexagonRenderer {
 
     window.onKeyDown.listen(doKeydown);
     canvas.onMouseMove.listen(doMouse);
+    window.onResize.listen( (e) {
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      gl.viewport(0,0,canvas.width, canvas.height);
+    });
   }
   void doKeydown(KeyboardEvent e) {
     switch (e.keyCode) {
@@ -112,6 +116,7 @@ class HexagonRenderer {
       case (KeyCode.RIGHT):
         camera.move_keyboard(FPSCamera.TURN_RIGHT);
         break;
+      // dvorak wasd keybindings
       case (KeyCode.COMMA):
         camera.move_keyboard(FPSCamera.FORWARD);
         break;
