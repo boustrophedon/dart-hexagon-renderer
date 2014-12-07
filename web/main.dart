@@ -13,6 +13,19 @@ import 'camera.dart';
 // global rng
 math.Random rng = new math.Random();
 
+Map control_map = {
+  KeyCode.UP: FPSCamera.TURN_UP, 
+  KeyCode.DOWN: FPSCamera.TURN_DOWN, 
+  KeyCode.LEFT: FPSCamera.TURN_LEFT, 
+  KeyCode.RIGHT: FPSCamera.TURN_RIGHT, 
+  KeyCode.COMMA: FPSCamera.FORWARD, 
+  KeyCode.O: FPSCamera.BACK, 
+  KeyCode.A: FPSCamera.S_LEFT, 
+  KeyCode.E: FPSCamera.S_RIGHT, 
+  KeyCode.PAGE_UP: FPSCamera.ASCEND, 
+  KeyCode.PAGE_DOWN: FPSCamera.DESCEND 
+};
+
 class Hexagon {
   Matrix4 model_matrix;
   num x_rotation = math.PI/2;
@@ -56,12 +69,12 @@ class HexagonRenderer {
   WebGL.Buffer indexBufferSide;
 
   FPSCamera camera;
+  List<int> directions;
 
   List<Hexagon> hexagons;
 
   num dt = 0.0;
   num timestamp = 0.0;
-
 
   HexagonRenderer(CanvasElement canvas) {
     this.canvas = canvas;
@@ -94,8 +107,10 @@ class HexagonRenderer {
     add_hexagon(2,3,1);
 
     camera = new FPSCamera(canvas.width/canvas.height);
+    directions = new List<int>();
 
     window.onKeyDown.listen(doKeydown);
+    window.onKeyUp.listen(doKeyup);
     canvas.onMouseMove.listen(doMouse);
     window.onResize.listen( (e) {
       canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -103,43 +118,15 @@ class HexagonRenderer {
     });
   }
   void doKeydown(KeyboardEvent e) {
-    switch (e.keyCode) {
-      case (KeyCode.UP):
-        camera.move_keyboard(FPSCamera.TURN_UP);
-        break;
-      case (KeyCode.DOWN):
-        camera.move_keyboard(FPSCamera.TURN_DOWN);
-        break;
-      case (KeyCode.LEFT):
-        camera.move_keyboard(FPSCamera.TURN_LEFT);
-        break;
-      case (KeyCode.RIGHT):
-        camera.move_keyboard(FPSCamera.TURN_RIGHT);
-        break;
-      // dvorak wasd keybindings
-      case (KeyCode.COMMA):
-        camera.move_keyboard(FPSCamera.FORWARD);
-        break;
-      case (KeyCode.O):
-        camera.move_keyboard(FPSCamera.BACK);
-        break;
-      case (KeyCode.A):
-        camera.move_keyboard(FPSCamera.S_LEFT);
-        break;
-      case (KeyCode.E):
-        camera.move_keyboard(FPSCamera.S_RIGHT);
-        break;
-      case (KeyCode.PAGE_DOWN):
-        camera.move_keyboard(FPSCamera.DESCEND);
-        break;
-      case (KeyCode.PAGE_UP):
-        camera.move_keyboard(FPSCamera.ASCEND);
-        break;
-      default:
-        break;
+    int cmd = control_map[e.keyCode];
+    if (!directions.contains(cmd)) {
+      directions.add(control_map[e.keyCode]);
     }
   }
- 
+  void doKeyup(KeyboardEvent e) {
+    directions.remove(control_map[e.keyCode]);
+  }
+
   void doMouse(MouseEvent e) {
     var js_event = new JsObject.fromBrowserObject(e);
     num dX, dY;
@@ -152,6 +139,12 @@ class HexagonRenderer {
       dY = e.movement.y;
     }
     camera.move_mouse(dX, dY);
+  }
+  
+  void update_camera() {
+    print(directions);
+    camera.move_keyboard(directions);
+    camera.update_view();
   }
 
   void add_hexagon(num x, num z, [num y]) {
@@ -287,12 +280,13 @@ class HexagonRenderer {
     this.dt = timestamp - this.timestamp;
     this.timestamp = timestamp;
 
+    update_camera();
+
     gl.clear(WebGL.COLOR_BUFFER_BIT | WebGL.DEPTH_BUFFER_BIT);
     bind_hexagon_color_buffer();
     bind_hexagon_buffer();
     bind_hexagon_index_buffer_top();
 
-    camera.update_view();
     for (Hexagon hexagon in hexagons) {
       set_matrix_uniforms(hexagon.model_matrix);
 

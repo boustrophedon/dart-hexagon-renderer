@@ -15,8 +15,8 @@ class FPSCamera {
   num aspect_ratio;
   static const num FOV = math.PI/4;
 
-  static const num LOOK_SPEED = math.PI/80;
-  static const num MOVE_SPEED = 0.3;
+  static const num LOOK_SPEED = 0.02;
+  static const num MOVE_SPEED = 0.25;
 
   // enums implemented in 1.8, should really upgrade
   static const TURN_UP    = 0;
@@ -50,51 +50,56 @@ class FPSCamera {
     update_view();
   }
 
-  void move_keyboard(int direction) {
-    switch (direction) {
-      case (TURN_UP):
-        angleY = math.min(angleY+LOOK_SPEED, math.PI/2);
-        camera_rotY.setAxisAngle(x_axis, angleY);
-        break;
-      case (TURN_DOWN):
-        angleY = math.max(angleY-LOOK_SPEED, -math.PI/2);
-        camera_rotY.setAxisAngle(x_axis, angleY);
-        break;
-      case (TURN_LEFT):
-        angleX+=LOOK_SPEED;
-        camera_rotX.setAxisAngle(y_axis, angleX);
-        break;
-      case (TURN_RIGHT):
-        angleX-=LOOK_SPEED;
-        camera_rotX.setAxisAngle(y_axis, angleX);
-        break;
+  void move_keyboard(List<int> directions) {
+    Vector3 camera_move = new Vector3.zero();
+    for (int direction in directions) {
+      switch (direction) {
+        // not sure how to limit the speed when looking up and sideways at the same time
+        case (TURN_UP):
+          angleY = math.min(angleY+LOOK_SPEED, math.PI/2);
+          camera_rotY.setAxisAngle(x_axis, angleY);
+          break;
+        case (TURN_DOWN):
+          angleY = math.max(angleY-LOOK_SPEED, -math.PI/2);
+          camera_rotY.setAxisAngle(x_axis, angleY);
+          break;
+        case (TURN_LEFT):
+          angleX+=LOOK_SPEED;
+          camera_rotX.setAxisAngle(y_axis, angleX);
+          break;
+        case (TURN_RIGHT):
+          angleX-=LOOK_SPEED;
+          camera_rotX.setAxisAngle(y_axis, angleX);
+          break;
 
-      case (FORWARD):
-        // not 100% sure why we have to rotate by the inverse 
-        Vector3 dir = camera_rotX.inverted().rotated(forward);
-        camera_pos+=(dir*MOVE_SPEED);
-        break;
-      case (BACK):
-        Vector3 dir = camera_rotX.inverted().rotated(forward);
-        camera_pos-=(dir*MOVE_SPEED);
-        break;
-      case (S_LEFT):
-        Vector3 dir = camera_rotX.inverted().rotated(x_axis);
-        camera_pos-=(dir*MOVE_SPEED);
-        break;
-      case (S_RIGHT):
-        Vector3 dir = camera_rotX.inverted().rotated(x_axis);
-        camera_pos+=(dir*MOVE_SPEED);
-        break;
-      case (ASCEND):
-        camera_pos+=(y_axis*MOVE_SPEED);
-        break;
-      case (DESCEND):
-        camera_pos-=(y_axis*MOVE_SPEED);
-        break;
-      default:
-        break;
+        case (FORWARD):
+          // not 100% sure why we have to rotate by the inverse 
+          Vector3 dir = camera_rotX.inverted().rotated(forward);
+          camera_move+=(dir);
+          break;
+        case (BACK):
+          Vector3 dir = camera_rotX.inverted().rotated(forward);
+          camera_move-=(dir);
+          break;
+        case (S_LEFT):
+          Vector3 dir = camera_rotX.inverted().rotated(x_axis);
+          camera_move-=(dir);
+          break;
+        case (S_RIGHT):
+          Vector3 dir = camera_rotX.inverted().rotated(x_axis);
+          camera_move+=(dir);
+          break;
+        case (ASCEND):
+          camera_move+=(y_axis);
+          break;
+        case (DESCEND):
+          camera_move-=(y_axis);
+          break;
+        default:
+          break;
+      }
     }
+    camera_pos += camera_move.normalized()*MOVE_SPEED;
   }
 
   void move_mouse(num dx, dy) {
