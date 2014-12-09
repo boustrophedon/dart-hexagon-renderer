@@ -69,6 +69,7 @@ class HexagonRenderer {
   WebGL.Buffer indexBufferSide;
 
   FPSCamera camera;
+  double lastX, lastY;
   List<int> directions;
 
   List<Hexagon> hexagons;
@@ -112,6 +113,11 @@ class HexagonRenderer {
     window.onKeyDown.listen(doKeydown);
     window.onKeyUp.listen(doKeyup);
     canvas.onMouseMove.listen(doMouse);
+
+    canvas.onTouchStart.listen(doTouchStart);
+    canvas.onTouchMove.listen(doTouchMove);
+    canvas.onTouchEnd.listen(doTouchEnd);
+
     window.onResize.listen( (e) {
       canvas.width = window.innerWidth; canvas.height = window.innerHeight;
       gl.viewport(0,0,canvas.width, canvas.height);
@@ -140,9 +146,32 @@ class HexagonRenderer {
     }
     camera.move_mouse(dX, dY);
   }
-  
+
+  void doTouchStart(TouchEvent e) {
+    Touch t = e.touches.first;
+
+    lastX = t.screen.x-canvas.width/2;
+    lastY = t.screen.y-canvas.height/2;
+  }
+  void doTouchMove(TouchEvent e) {
+    Touch t = e.touches.first;
+    double x = t.screen.x-canvas.width/2;
+    double y = t.screen.y-canvas.height/2;
+
+    camera.move_touch(x-lastX, y-lastY);
+
+    if (e.touches.length == 2) {
+      if (!directions.contains(FPSCamera.FORWARD)) { directions.add(FPSCamera.FORWARD); }
+    }
+
+    lastX = t.screen.x-canvas.width/2;
+    lastY = t.screen.y-canvas.height/2;
+  }
+  void doTouchEnd(TouchEvent e) {
+    directions.remove(FPSCamera.FORWARD);
+  }
+
   void update_camera() {
-    print(directions);
     camera.move_keyboard(directions);
     camera.update_view();
   }
@@ -333,6 +362,11 @@ void fullscreenWorkaround(CanvasElement canvas) {
 }
 
 void pointerlock_workaround(CanvasElement canvas) {
+  // check if mobile browser
+  if (TouchEvent.supported) {
+    return;
+  }
+
   var canv = new JsObject.fromBrowserObject(canvas);
 
   if (canv.hasProperty("requestPointerLock")) {

@@ -110,6 +110,14 @@ class FPSCamera {
     camera_rotY.setAxisAngle(x_axis, angleY);
   }
 
+  void move_touch(num dx, dy) {
+    angleY = (angleY-dy*LOOK_SPEED*0.5).clamp(-math.PI/2, math.PI/2);
+    angleX -= dx*LOOK_SPEED*0.5;
+
+    camera_rotX.setAxisAngle(y_axis, angleX);
+    camera_rotY.setAxisAngle(x_axis, angleY);
+  }
+
   void update_view() {
     // this is unoptimized
     view_matrix.setFromTranslationRotation(camera_pos,
