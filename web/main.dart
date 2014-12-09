@@ -13,7 +13,7 @@ import 'camera.dart';
 // global rng
 math.Random rng = new math.Random();
 
-Map control_map = {
+Map control_map_dvorak = {
   KeyCode.UP: FPSCamera.TURN_UP, 
   KeyCode.DOWN: FPSCamera.TURN_DOWN, 
   KeyCode.LEFT: FPSCamera.TURN_LEFT, 
@@ -25,6 +25,20 @@ Map control_map = {
   KeyCode.PAGE_UP: FPSCamera.ASCEND, 
   KeyCode.PAGE_DOWN: FPSCamera.DESCEND 
 };
+Map control_map_wasd = {
+  KeyCode.UP: FPSCamera.TURN_UP, 
+  KeyCode.DOWN: FPSCamera.TURN_DOWN, 
+  KeyCode.LEFT: FPSCamera.TURN_LEFT, 
+  KeyCode.RIGHT: FPSCamera.TURN_RIGHT, 
+  KeyCode.W: FPSCamera.FORWARD, 
+  KeyCode.S: FPSCamera.BACK, 
+  KeyCode.A: FPSCamera.S_LEFT, 
+  KeyCode.D: FPSCamera.S_RIGHT, 
+  KeyCode.PAGE_UP: FPSCamera.ASCEND, 
+  KeyCode.PAGE_DOWN: FPSCamera.DESCEND 
+};
+
+Map control_map = control_map_dvorak;
 
 class Hexagon {
   Matrix4 model_matrix;
